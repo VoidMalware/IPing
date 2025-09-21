@@ -97,10 +97,11 @@ Options:
 
 ## Need Help?
 
-- If you find a bug or have a feature request, open an issue on GitHub.
+- If you find a bug or have a feature request, open an issue on GitHub or join our discord server, link will be below.
 - Contributions and pull requests are welcome.
 
 ---
+# Notes
 
 For the best experience, install tqdm for a progress bar:
 
@@ -108,6 +109,10 @@ For the best experience, install tqdm for a progress bar:
 pip install tqdm
 ```
 
+Also make sure to join our discord server and get updated once a new repository or project is out or in development!
+```
+https://discord.gg/r89mbJH232
+```
 ---
 
 Happy scanning.
