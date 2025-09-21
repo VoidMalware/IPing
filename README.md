@@ -1,73 +1,113 @@
-# IPing
-An IP pinger script working with a specific IP address range. Its kind of user-friendly and very advanced, working with an advanced pinger made from scratch for improved IP hunting.
+# Welcome to IPing
 
-# Setup Guide
+IPing is a fast and easy-to-use multi-IP ping scanner. Quickly scan entire ranges or networks right from your terminal. Whether you are a network administrator, security professional, or just want to check which devices are online, IPing makes the process simple.
 
-This little script lets you ping a bunch of IPs at once and shows you if they’re alive (green), flaky (yellow), or dead (red). You can feed it either a range of IPs or a subnet, and it’ll handle the rest.
+---
 
+## Quick Start
 
+### 1. Clone the Repository
 
-## Setup
+```sh
+git clone https://github.com/VoidMalware/IPing.git
+cd IPing
+```
 
-1. Install Python (3.7 or newer).
-Check if you have it:
+### 2. Install Requirements
 
-`python --version`
+Make sure you have Python 3.7 or later.
 
-2. Install the only extra thing it needs:
+Install required dependencies:
 
+```sh
+pip install -r requirements.txt
+```
 
-`pip install colorama`
+If you just need the basics:
 
-3. Save the script as pinger.py.
+```sh
+pip install colorama
+```
 
-That’s it, you’re ready.
+For a progress bar (optional but recommended):
 
+```sh
+pip install tqdm
+```
 
+### 3. Run Your First Scan
 
-## How to Run
+You can scan a range or an entire subnet using either dash or CIDR notation:
 
-Open a terminal in the folder where you saved the script, then run:
-`python ping_scan.py <IP_RANGE> [options]`
+```sh
+python pinger.py 192.168.1.1-192.168.1.10
+```
 
-## Examples
+or
 
-Ping a range of IPs:
+```sh
+python pinger.py 192.168.1.0/28
+```
 
-`python ping_scan.py 192.168.1.1-192.168.1.20`
+---
 
-Ping a whole subnet:
+## Usage and Options
 
-`python ping_scan.py 192.168.1.0/28`
+Basic usage:
 
-Use fewer workers and a shorter timeout:
+```sh
+python pinger.py <IP_RANGE> [options]
+```
 
-`python ping_scan.py 192.168.0.0/24 -w 10 -t 500`
+Examples:
 
-Save results to a text file:
+- Scan a range:
+  ```sh
+  python pinger.py 10.0.0.1-10.0.0.100
+  ```
+- Scan a subnet:
+  ```sh
+  python pinger.py 192.168.0.0/24
+  ```
+- Save results to a file:
+  ```sh
+  python pinger.py 192.168.1.0/28 -o results.txt
+  ```
+- Change ping count, timeout, or worker threads:
+  ```sh
+  python pinger.py 10.0.0.1-10.0.0.10 -c 2 -t 500 -w 10
+  ```
 
-`python ping_scan.py 10.0.0.1-10.0.0.50 -o results.txt`
+Options:
 
+- `-c, --count` : Number of ping packets per host (default: 4)
+- `-t, --timeout` : Timeout per ping in milliseconds (default: 1000)
+- `-w, --workers` : Number of concurrent workers (default: 20)
+- `-o, --output` : Save results to a file
 
+---
 
-## Options
--c → Number of pings per host (default: 4)
+## Additional Information
 
--t → Timeout in milliseconds (default: 1000)
+- Results are color-coded and summarized automatically in your terminal.
+- Logs are saved in `ping_scan.log` for troubleshooting.
+- Cross-platform: works on Windows, Linux, and macOS.
 
--w → Number of workers/threads (default: 20)
+---
 
--o → Save output to a file
+## Need Help?
 
+- If you find a bug or have a feature request, open an issue on GitHub.
+- Contributions and pull requests are welcome.
 
+---
 
-## Output
+For the best experience, install tqdm for a progress bar:
 
-Green = Host responded (0% loss)
+```sh
+pip install tqdm
+```
 
-Yellow = Some packet loss
+---
 
-Red = Host didn’t respond at all
-
-
-```At the end, you’ll also get a quick summary with how many were up, flaky, or dead.```
+Happy scanning.
