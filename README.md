@@ -1,5 +1,5 @@
 # IPing
-An IP pinger script working with a specific 
+An IP pinger script working with a specific IP address range. Its kind of user-friendly and very advanced, working with an advanced pinger made from scratch for improved IP hunting.
 
 # Setup Guide
 
