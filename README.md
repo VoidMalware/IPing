@@ -110,9 +110,8 @@ pip install tqdm
 ```
 
 Also make sure to join our discord server and get updated once a new repository or project is out or in development!
-```
+
 https://discord.gg/r89mbJH232
-```
 ---
 
 Happy scanning.
