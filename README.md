@@ -92,6 +92,7 @@ Options:
 - Results are color-coded and summarized automatically in your terminal.
 - Logs are saved in `ping_scan.log` for troubleshooting.
 - Cross-platform: works on Windows, Linux, and macOS.
+- For large scale scans consider using pingerEnhanced.py (accuracy may vary slightly).
 
 ---
 
