@@ -109,7 +109,7 @@ For the best experience, install tqdm for a progress bar:
 pip install tqdm
 ```
 
-Also make sure to join our discord server and get updated once a new repository or project is out or in development!
+Also make sure to join our discord server and get updated on a specific repository, receive extended help, find our tutorials and troubleshoot files and more!
 
 https://discord.gg/r89mbJH232
 ---
