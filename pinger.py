@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 from colorama import Fore, Style, init
 import logging
-from typing import List, Dict
+from typing import Generator, Dict
 
 try:
     from tqdm import tqdm
@@ -28,18 +28,25 @@ logging.basicConfig(
 
 def ping_ip(ip: str, count: int = 4, timeout: int = 1000) -> int:
     """
-    Ping an IP address and return packet loss percentage.
+    Ping an IP address (IPv4 or IPv6) and return packet loss percentage.
     """
     system = platform.system().lower()
+    is_ipv6 = ':' in str(ip)
+
     if system == 'windows':
         param = '-n'
         timeout_param = '-w'
         timeout_val = str(timeout)
+        command = ['ping', param, str(count), timeout_param, timeout_val, str(ip)]
     else:
         param = '-c'
         timeout_param = '-W'
         timeout_val = str(max(1, int(timeout / 1000)))
-    command = ['ping', param, str(count), timeout_param, timeout_val, str(ip)]
+        if is_ipv6:
+            command = ['ping6', param, str(count), timeout_param, timeout_val, str(ip)]
+        else:
+            command = ['ping', param, str(count), timeout_param, timeout_val, str(ip)]
+
     logging.debug(f"Pinging {ip} with command: {' '.join(command)}")
 
     try:
@@ -81,10 +88,10 @@ def print_result(ip: str, loss: int) -> None:
         status = "Failed"
     print(f"{color}{ip} - {status}{Style.RESET_ALL}")
 
-def parse_ip_range(ip_range_str: str) -> List[ipaddress._BaseAddress]:
+def parse_ip_range(ip_range_str: str) -> Generator[ipaddress._BaseAddress, None, None]:
     """
-    Parse IP range string in format 'start-end' or CIDR notation.
-    Returns a list of IP addresses.
+    Generator for IP range string: 'start-end' or CIDR.
+    Yields IP addresses without storing them all in memory.
     """
     ip_range_str = ip_range_str.strip()
     if '-' in ip_range_str:
@@ -95,15 +102,14 @@ def parse_ip_range(ip_range_str: str) -> List[ipaddress._BaseAddress]:
             raise ValueError("Start and end IP must be of the same version")
         if int(end_ip) < int(start_ip):
             raise ValueError("End IP must be >= start IP")
-        # Use summarize_address_range for efficiency
-        return [
-            ip for rng in ipaddress.summarize_address_range(start_ip, end_ip)
-            for ip in rng.hosts()
-        ]
+        current = int(start_ip)
+        while current <= int(end_ip):
+            yield ipaddress.ip_address(current)
+            current += 1
     else:
-        # Assume CIDR notation
         net = ipaddress.ip_network(ip_range_str, strict=False)
-        return list(net.hosts())
+        for host in net.hosts():
+            yield host
 
 def save_results(results: Dict[str, int], output_file: str) -> None:
     try:
@@ -131,7 +137,7 @@ def print_summary(results: Dict[str, int]) -> None:
     print(f"{Fore.RED}Failed: {failed_count}{Style.RESET_ALL}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Ping multiple IP addresses concurrently.")
+    parser = argparse.ArgumentParser(description="Ping multiple IP addresses concurrently (memory safe).")
     parser.add_argument('ip_range', help="IP range to scan. Format: startIP-endIP or CIDR (e.g. 192.168.1.1-192.168.1.10 or 192.168.1.0/28)")
     parser.add_argument('-c', '--count', type=int, default=4, help="Number of ping packets to send (default: 4)")
     parser.add_argument('-t', '--timeout', type=int, default=1000, help="Timeout per ping in milliseconds (default: 1000)")
@@ -144,24 +150,20 @@ def main():
         sys.exit(1)
 
     try:
-        ip_list = parse_ip_range(args.ip_range)
+        ip_iter = parse_ip_range(args.ip_range)  # generator
     except Exception as e:
         print(f"{Fore.RED}Error parsing IP range: {e}{Style.RESET_ALL}")
         sys.exit(1)
 
-    if not ip_list:
-        print(f"{Fore.RED}No valid hosts found in the specified range.{Style.RESET_ALL}")
-        sys.exit(1)
-
-    print(f"Starting ping scan on {len(ip_list)} IPs with {args.workers} workers...")
+    print(f"Starting ping scan with {args.workers} workers...")
     results = {}
     start_time = datetime.now()
 
-    progress_iter = tqdm(ip_list, desc="Pinging") if USE_TQDM else ip_list
+    if USE_TQDM:
+        ip_iter = tqdm(ip_iter, desc="Pinging")
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
-        future_to_ip = {executor.submit(ping_ip, str(ip), args.count, args.timeout): str(ip) for ip in ip_list}
-        completed = 0
+        future_to_ip = {executor.submit(ping_ip, str(ip), args.count, args.timeout): str(ip) for ip in ip_iter}
         for future in concurrent.futures.as_completed(future_to_ip):
             ip = future_to_ip[future]
             try:
@@ -171,9 +173,6 @@ def main():
                 loss = 100
             print_result(ip, loss)
             results[ip] = loss
-            completed += 1
-            if USE_TQDM:
-                progress_iter.update(1)
 
     print_summary(results)
     print(f"Elapsed time: {datetime.now() - start_time}")
@@ -183,14 +182,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    system = platform.system().lower()
-         is_ipv6 = ':' in ip  # Simple check; use ipaddress.ip_address(ip).version == 6 for precision 
-
-         if system == 'windows':
-             # Windows ping handles both
-             pass
-         else:
-             if is_ipv6:
-                 command = ['ping6', param, str(count), timeout_param, timeout_val, str(ip)]  # Use ping6 on Unix
-             else:
-                 command = ['ping', param, str(count), timeout_param, timeout_val, str(ip)]
