@@ -183,3 +183,14 @@ def main():
 
 if __name__ == "__main__":
     main()
+    system = platform.system().lower()
+         is_ipv6 = ':' in ip  # Simple check; use ipaddress.ip_address(ip).version == 6 for precision 
+
+         if system == 'windows':
+             # Windows ping handles both
+             pass
+         else:
+             if is_ipv6:
+                 command = ['ping6', param, str(count), timeout_param, timeout_val, str(ip)]  # Use ping6 on Unix
+             else:
+                 command = ['ping', param, str(count), timeout_param, timeout_val, str(ip)]
