@@ -110,6 +110,9 @@ For the best experience, install tqdm for a progress bar:
 pip install tqdm
 ```
 
+By using, installing, accessing, distributing, copying, modifying, compiling or contributing to this software, you confirm that you have read and agree to our [Acceptable Use & Access Policy](https://docs.google.com/document/d/1nqDiYy2_R7B-Ly2AmH9B2ZsuDlQjDhC8vVs5QNMcw84/edit?usp=sharing).  Unauthorized use is prohibited and may result in immediate withdrawal of access.
+
+
 Also make sure to join our discord server and get updated on a specific repository, receive extended help, find our tutorials and troubleshoot files and more!
 
 https://discord.gg/r89mbJH232
